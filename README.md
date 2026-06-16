@@ -61,7 +61,7 @@ cd BackEnd_ChessTournamentProject/2.Application_API_Web_Asp.Net_Core/ChessAppli
 
 dotnet user-secrets init --project AppliChess/API.csproj
 
-dotnet user-secrets set "CHESS_CONNECTION_STRING" "Data Source=<VOTRE_SERVEUR>\TFTIC;Initial Catalog=asp_api_ChessTournament;Integrated Security=True;TrustServerCertificate=True;" --project AppliChess/API.csproj
+dotnet user-secrets set "CHESS_CONNECTION_STRING" "<VOTRE_CONNECTION_STRING>" --project AppliChess/API.csproj
 ```
 
 ### Lancer l'API
