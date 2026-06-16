@@ -1,0 +1,59 @@
+<div class="container mt-4">
+  <h2 class="mb-4">📋 Créer une catégorie</h2>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+
+    <!-- Nom -->
+    <div class="mb-3">
+      <label class="form-label">Nom de la catégorie *</label>
+      <input type="text" class="form-control"
+             formControlName="nameCategory"
+             placeholder="Ex: Senior">
+      @if (categoryForm.get('nameCategory')?.invalid && categoryForm.get('nameCategory')?.touched) {
+        <div class="text-danger">Le nom est obligatoire !</div>
+      }
+    </div>
+
+    <!-- Age minimum -->
+    <div class="mb-3">
+      <label class="form-label">Age minimum *</label>
+      <input type="number" class="form-control"
+             formControlName="minAge"
+             min="0" max="110">
+    </div>
+
+    <!-- Age maximum -->
+    <div class="mb-3">
+      <label class="form-label">Age maximum *</label>
+      <input type="number" class="form-control"
+             formControlName="maxAge"
+             min="0" max="110">
+    </div>
+
+    <!-- Boutons -->
+    <div class="d-flex gap-2">
+      <button type="submit"
+              class="btn btn-primary"
+              [disabled]="categoryForm.invalid">
+        Créer la catégorie
+      </button>
+      <button type="button"
+              class="btn btn-secondary"
+              (click)="cancel()">
+        Annuler
+      </button>
+      <a routerLink="/categories/list" class="btn btn-outline-secondary">
+        📄 Voir les catégories existantes
+      </a>
+    </div>
+
+  </form>
+</div>

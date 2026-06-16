@@ -1,0 +1,41 @@
+<div class="container mt-4" style="max-width: 500px">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>👤 Liste des joueurs</h2>
+    <button class="btn btn-secondary" (click)="goBack()">← Retour</button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (isLoading()) {
+    <div class="text-center mt-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2">Chargement...</p>
+    </div>
+  }
+
+  @if (!isLoading() && players().length === 0) {
+    <div class="alert alert-info">Aucun joueur enregistré.</div>
+  }
+
+  @if (!isLoading() && players().length > 0) {
+    <ul class="list-group">
+      @for (player of players(); track player.player_Id) {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ player.pseudo }}</span>
+          <button class="btn btn-sm btn-outline-danger"
+                  (click)="deletePlayer(player)">
+            🗑️ Supprimer
+          </button>
+        </li>
+      }
+    </ul>
+  }
+
+</div>

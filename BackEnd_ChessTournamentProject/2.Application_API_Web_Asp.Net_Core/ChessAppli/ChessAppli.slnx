@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BLL/BLL.csproj" Id="84d3a918-535e-4784-b85a-b1e3b8f46048" />
+  <Project Path="AppliChess/API.csproj" Id="a1b2c3d4-e5f6-7890-abcd-ef1234567890" />
+  <Project Path="DAL/DAL.csproj" Id="fef0cf1a-36c1-4572-8a2f-d6734c2ba587" />
+  <Project Path="DOMAIN/DOMAIN.csproj" Id="071c1310-8497-45ff-8be8-8904166c5fbd" />
+</Solution>

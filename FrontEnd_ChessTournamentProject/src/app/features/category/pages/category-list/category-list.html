@@ -1,0 +1,57 @@
+<div class="container mt-4">
+
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a routerLink="/categories/create" class="btn btn-secondary">← Retour</a>
+    <h2 class="mb-0">📋 Liste des catégories</h2>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <!-- Loader -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  }
+
+  <!-- Tableau -->
+  @if (!isLoading() && categories().length > 0) {
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>Nom</th>
+          <th>Âge min</th>
+          <th>Âge max</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (category of categories(); track category.category_Id) {
+          <tr>
+            <td>{{ category.nameCategory }}</td>
+            <td>{{ category.minAge }} ans</td>
+            <td>{{ category.maxAge }} ans</td>
+            <td>
+              <button class="btn btn-sm btn-outline-danger"
+                      (click)="deleteCategory(category.category_Id)">
+                🗑️ Supprimer
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <!-- Aucune catégorie -->
+  @if (!isLoading() && categories().length === 0) {
+    <div class="alert alert-info">Aucune catégorie disponible.</div>
+  }
+
+</div>

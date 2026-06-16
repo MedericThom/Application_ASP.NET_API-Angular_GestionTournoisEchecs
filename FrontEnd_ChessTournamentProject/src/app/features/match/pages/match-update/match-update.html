@@ -1,0 +1,45 @@
+<div class="container mt-4">
+  <h2 class="mb-4">⚔️ Modifier le résultat d'un match</h2>
+
+  <!-- Message succès -->
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  <!-- Message erreur -->
+  @if (errorMessage()) {
+    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="matchForm" (ngSubmit)="onSubmit()">
+
+    <!-- Résultat -->
+    <div class="mb-3">
+      <label class="form-label">Résultat *</label>
+      <select class="form-select" formControlName="result">
+        <option [ngValue]="null">-- Choisir un résultat --</option>
+        <option [ngValue]="0">0 — Nul</option>
+        <option [ngValue]="1">1 — Blancs gagnent</option>
+        <option [ngValue]="2">2 — Noirs gagnent</option>
+      </select>
+      @if (matchForm.get('result')?.invalid && matchForm.get('result')?.touched) {
+        <div class="text-danger">Sélectionnez un résultat !</div>
+      }
+    </div>
+
+    <!-- Boutons -->
+    <div class="d-flex gap-2">
+      <button type="submit"
+              class="btn btn-primary"
+              [disabled]="matchForm.invalid">
+        Enregistrer
+      </button>
+      <button type="button"
+              class="btn btn-secondary"
+              (click)="cancel()">
+        Annuler
+      </button>
+    </div>
+
+  </form>
+</div>

@@ -1,0 +1,59 @@
+<div class="container mt-4">
+  <h2 class="mb-4">📝 Inscrire un joueur</h2>
+
+  <!-- Zone message : hauteur fixe pour que les boutons ne bougent pas -->
+  <div style="min-height: 58px;">
+    @if (successMessage()) {
+      <div class="alert alert-success mb-0">{{ successMessage() }}</div>
+    }
+    @if (errorMessage()) {
+      <div class="alert alert-danger mb-0">{{ errorMessage() }}</div>
+    }
+  </div>
+
+  <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+
+    <!-- Liste déroulante joueurs -->
+    <div class="mb-3">
+      <label class="form-label">Joueur *</label>
+      <select class="form-select" formControlName="player_Id">
+        <option [value]="null">-- Choisir un joueur --</option>
+        @for (player of players(); track player.player_Id) {
+          <option [value]="player.player_Id">
+            {{ player.pseudo }} (ELO: {{ player.elo }})
+          </option>
+        }
+      </select>
+      @if (registrationForm.get('player_Id')?.invalid && registrationForm.get('player_Id')?.touched) {
+        <div class="text-danger">Sélectionnez un joueur !</div>
+      }
+    </div>
+
+    <!-- Liste déroulante tournois -->
+    <div class="mb-3">
+      <label class="form-label">Tournoi *</label>
+      <select class="form-select" formControlName="tournament_Id">
+        <option [value]="null">-- Choisir un tournoi --</option>
+        @for (tournament of tournaments(); track tournament.tournament_Id) {
+          <option [value]="tournament.tournament_Id">
+            {{ tournament.nameTournament }} - {{ tournament.place }}
+          </option>
+        }
+      </select>
+      @if (registrationForm.get('tournament_Id')?.invalid && registrationForm.get('tournament_Id')?.touched) {
+        <div class="text-danger">Sélectionnez un tournoi !</div>
+      }
+    </div>
+
+    <!-- Boutons -->
+    <div class="d-flex gap-2">
+      <button type="submit"
+              class="btn btn-primary"
+              [disabled]="registrationForm.invalid">
+        Inscrire le joueur
+      </button>
+      <a routerLink="/tournaments" class="btn btn-secondary">← Retour aux tournois</a>
+    </div>
+
+  </form>
+</div>

@@ -1,0 +1,112 @@
+<div class="container mt-4">
+  <h2 class="mb-4">👤 Créer un joueur</h2>
+
+  <!-- Message succès -->
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  <!-- Message erreur -->
+  @if (errorMessage()) {
+    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  }
+
+  <!-- Formulaire réactif -->
+  <form [formGroup]="playerForm" (ngSubmit)="onSubmit()">
+
+    <!-- Pseudo -->
+    <div class="mb-3">
+      <label class="form-label">Pseudo *</label>
+      <input type="text" class="form-control"
+             formControlName="pseudo"
+             placeholder="Ex: Magnus">
+      @if (playerForm.get('pseudo')?.invalid && playerForm.get('pseudo')?.touched) {
+        <div class="text-danger">Le pseudo est obligatoire !</div>
+      }
+    </div>
+
+    <!-- Email -->
+    <div class="mb-3">
+      <label class="form-label">Email *</label>
+      <input type="email" class="form-control"
+             formControlName="email"
+             placeholder="Ex: magnus@chess.com">
+      @if (playerForm.get('email')?.invalid && playerForm.get('email')?.touched) {
+        <div class="text-danger">Email invalide !</div>
+      }
+    </div>
+
+    <!-- Password -->
+    <div class="mb-3">
+      <label class="form-label">Mot de passe *</label>
+      <input type="password" class="form-control"
+             formControlName="password">
+      @if (playerForm.get('password')?.invalid && playerForm.get('password')?.touched) {
+        <div class="text-danger">Le mot de passe est obligatoire !</div>
+      }
+    </div>
+
+    <!-- Date de naissance -->
+    <div class="mb-3">
+      <label class="form-label">Date de naissance *</label>
+      <input type="date" class="form-control"
+             formControlName="birthDate">
+      @if (playerForm.get('birthDate')?.invalid && playerForm.get('birthDate')?.touched) {
+        <div class="text-danger">La date de naissance est obligatoire !</div>
+      }
+    </div>
+
+    <!-- Genre -->
+    <div class="mb-3">
+      <label class="form-label">Genre *</label>
+      <select class="form-select" formControlName="gender">
+        <option value="">-- Choisir --</option>
+        <option value="Male">Homme</option>
+        <option value="Female">Femme</option>
+      </select>
+      @if (playerForm.get('gender')?.invalid && playerForm.get('gender')?.touched) {
+        <div class="text-danger">Le genre est obligatoire !</div>
+      }
+    </div>
+
+    <!-- ELO -->
+    <div class="mb-3">
+      <label class="form-label">ELO (défaut: 1200)</label>
+      <input type="number" class="form-control"
+             formControlName="elo"
+             min="0" max="3000">
+    </div>
+
+    <!-- Club -->
+    <div class="mb-3">
+      <label class="form-label">Club (optionnel)</label>
+      <select class="form-select" formControlName="chessClub_Id">
+        <option [ngValue]="null">-- Aucun club --</option>
+        @for (club of clubs(); track club.chessClub_Id) {
+          <option [ngValue]="club.chessClub_Id">{{ club.nameChessClub }}</option>
+        }
+      </select>
+      @if (clubs().length === 0) {
+        <small class="text-muted">Aucun club disponible.</small>
+      }
+    </div>
+
+    <!-- Boutons -->
+    <div class="d-flex gap-2">
+      <button type="submit"
+              class="btn btn-primary"
+              [disabled]="playerForm.invalid">
+        Créer le joueur
+      </button>
+      <button type="button"
+              class="btn btn-secondary"
+              (click)="cancel()">
+        Annuler
+      </button>
+      <a routerLink="/players/list" class="btn btn-outline-info">
+        📋 Voir la liste des joueurs
+      </a>
+    </div>
+
+  </form>
+</div>

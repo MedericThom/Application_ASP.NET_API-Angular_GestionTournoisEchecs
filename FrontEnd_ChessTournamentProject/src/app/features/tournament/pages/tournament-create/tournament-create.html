@@ -1,0 +1,175 @@
+<div class="container mt-4">
+  <h2 class="mb-4">🏆 Créer un tournoi</h2>
+
+  <!-- Message succès -->
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  <!-- Erreur de validation (champs manquants) -->
+  @if (validationError()) {
+    <div class="alert alert-warning">
+      ⚠️ Veuillez corriger les erreurs suivantes : <strong>{{ validationError() }}</strong>
+    </div>
+  }
+
+  <!-- Erreur serveur -->
+  @if (errorMessage()) {
+    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="tournamentForm" (ngSubmit)="onSubmit()">
+
+    <!-- Nom du tournoi -->
+    <div class="mb-3">
+      <label class="form-label">Nom du tournoi *</label>
+      <input type="text" class="form-control"
+             formControlName="nameTournament"
+             placeholder="Ex: Tournoi de Mons">
+      @if (tournamentForm.get('nameTournament')?.invalid && tournamentForm.get('nameTournament')?.touched) {
+        <div class="text-danger">Le nom est obligatoire (3-50 caractères) !</div>
+      }
+    </div>
+
+    <!-- Lieu -->
+    <div class="mb-3">
+      <label class="form-label">Lieu *</label>
+      <input type="text" class="form-control"
+             formControlName="place"
+             placeholder="Ex: Bruxelles">
+      @if (tournamentForm.get('place')?.invalid && tournamentForm.get('place')?.touched) {
+        <div class="text-danger">Le lieu est obligatoire !</div>
+      }
+    </div>
+
+    <!-- Min/Max joueurs -->
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Nombre minimum de joueurs *</label>
+        <input type="number" class="form-control"
+               formControlName="minNbPlayer"
+               min="2" max="100">
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Nombre maximum de joueurs *</label>
+        <input type="number" class="form-control"
+               formControlName="maxNbPlayer"
+               min="2" max="100">
+      </div>
+    </div>
+
+    <!-- Min/Max ELO -->
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">ELO minimum (optionnel)</label>
+        <input type="number" class="form-control"
+               formControlName="minElo"
+               placeholder="Ex: 1000">
+        @if (tournamentForm.get('minElo')?.invalid && tournamentForm.get('minElo')?.touched) {
+          <div class="text-danger">ELO minimum doit être entre 0 et 3000 !</div>
+        }
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">ELO maximum (optionnel)</label>
+        <input type="number" class="form-control"
+               formControlName="maxElo"
+               placeholder="Ex: 2500">
+        @if (tournamentForm.get('maxElo')?.invalid && tournamentForm.get('maxElo')?.touched) {
+          <div class="text-danger">ELO maximum doit être entre 0 et 3000 !</div>
+        }
+      </div>
+    </div>
+
+    <!-- Women Only -->
+    <div class="mb-3">
+      <label class="form-label">Options</label>
+      <div class="border rounded p-3 bg-light">
+        <div class="form-check form-check-inline m-0">
+          <input type="checkbox" class="form-check-input"
+                 formControlName="womenOnly"
+                 id="womenOnly"
+                 style="width:1.2em; height:1.2em;">
+          <label class="form-check-label ms-2 fw-semibold" for="womenOnly">
+            ♀️ Tournoi réservé aux femmes
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Date de fin des inscriptions -->
+    <div class="mb-3">
+      <label class="form-label">Date de fin des inscriptions *</label>
+      <input type="date" class="form-control"
+             formControlName="registrationDeadline"
+             [min]="minDate">
+      @if (tournamentForm.get('registrationDeadline')?.errors?.['required'] && tournamentForm.get('registrationDeadline')?.touched) {
+        <div class="text-danger">La date de fin des inscriptions est obligatoire !</div>
+      }
+      @if (tournamentForm.get('registrationDeadline')?.errors?.['minDate'] && tournamentForm.get('registrationDeadline')?.touched) {
+        <div class="text-danger">
+          La date de fin des inscriptions doit être au minimum le <strong>{{ minDateLabel }}</strong> (aujourd'hui + 2 jours minimum).
+        </div>
+      }
+    </div>
+
+    <!-- Nombre de rondes maximum -->
+    <div class="mb-3">
+      <label class="form-label">Nombre de rondes maximum *</label>
+      <input type="number" class="form-control"
+             formControlName="maxRounds"
+             placeholder="Ex: 5"
+             style="max-width: 160px;">
+      @if (tournamentForm.get('maxRounds')?.invalid && tournamentForm.get('maxRounds')?.touched) {
+        <div class="text-danger">Le nombre de rondes doit être entre 1 et 20 !</div>
+      }
+    </div>
+
+    <!-- Catégories -->
+    <div class="mb-3">
+      <label class="form-label">Catégories *</label>
+
+      @if (categories().length === 0) {
+        <div class="alert alert-warning">
+          Aucune catégorie disponible !
+          <a routerLink="/categories/create">Créer une catégorie</a>
+        </div>
+      }
+
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        @for (category of categories(); track category.category_Id) {
+          <div class="border rounded p-3 bg-light" style="min-width: 180px;">
+            <div class="form-check m-0">
+              <input type="checkbox"
+                     class="form-check-input"
+                     [id]="'category-' + category.category_Id"
+                     (change)="onCategoryChange(category.category_Id, $event)"
+                     style="width:1.2em; height:1.2em;">
+              <label class="form-check-label ms-2 fw-semibold"
+                     [for]="'category-' + category.category_Id">
+                {{ category.nameCategory }}<br>
+                <small class="text-muted fw-normal">{{ category.minAge }} - {{ category.maxAge }} ans</small>
+              </label>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (tournamentForm.get('categoryIds')?.value?.length === 0 && tournamentForm.get('categoryIds')?.touched) {
+        <div class="text-danger">Sélectionnez au moins une catégorie !</div>
+      }
+    </div>
+
+    <!-- Boutons -->
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary">
+        Créer le tournoi
+      </button>
+      <button type="button"
+              class="btn btn-secondary"
+              (click)="cancel()">
+        Annuler
+      </button>
+    </div>
+
+  </form>
+</div>

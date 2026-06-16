@@ -1,0 +1,248 @@
+<div class="container mt-4">
+
+  <!-- Bouton retour -->
+  <button class="btn btn-secondary mb-3" (click)="goBack()">
+    ← Retour
+  </button>
+
+  <!-- Messages -->
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <!-- Loader -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  }
+
+  @if (tournament()) {
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h2>🏆 {{ tournament()!.nameTournament }}</h2>
+        <span class="badge bg-primary">{{ tournament()!.statusTournament }}</span>
+      </div>
+
+      <div class="card-body">
+
+        <!-- Infos générales -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <p><strong>Lieu :</strong> {{ tournament()!.place }}</p>
+            @if (tournament()!.statusTournament !== 'Terminé') {
+              <p><strong>Ronde courante :</strong> {{ tournament()!.currentRound }} / {{ tournament()!.maxRounds }}</p>
+            }
+            <p><strong>Min joueurs :</strong> {{ tournament()!.minNbPlayer }}</p>
+            <p><strong>Max joueurs :</strong> {{ tournament()!.maxNbPlayer }}</p>
+            <p>
+              <strong>Joueurs inscrits :</strong>
+              <span class="badge bg-primary ms-1">
+                {{ tournament()!.players.length }} / {{ tournament()!.maxNbPlayer }}
+              </span>
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Women Only :</strong> {{ tournament()!.womenOnly ? 'Oui' : 'Non' }}</p>
+            <p><strong>Min ELO :</strong> {{ tournament()!.minElo ?? 'Aucun' }}</p>
+            <p><strong>Max ELO :</strong> {{ tournament()!.maxElo ?? 'Aucun' }}</p>
+            @if (tournament()!.statusTournament === 'En attente de joueurs') {
+              <p class="d-flex align-items-center gap-2 flex-wrap">
+                <span>
+                  <strong>Date limite d'inscription :</strong>
+                  {{ tournament()!.registrationDeadline | date:'dd/MM/yyyy' }}
+                </span>
+                <button class="btn btn-sm btn-outline-secondary"
+                        (click)="showDeadlineForm.set(!showDeadlineForm())">
+                  ✏️ Modifier
+                </button>
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Formulaire modification date limite -->
+        @if (showDeadlineForm() && tournament()!.statusTournament === 'En attente de joueurs') {
+          <div class="card p-3 mb-4 bg-light border">
+            <h6 class="mb-2">Nouvelle date de fin des inscriptions</h6>
+            <small class="text-muted mb-2 d-block">La date doit être au minimum dans 2 jours.</small>
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+              <input type="date" #deadlineInput class="form-control" style="max-width: 220px"
+                     [min]="minDeadlineDate">
+              <button class="btn btn-primary"
+                      (click)="updateDeadline(deadlineInput.value)">
+                Confirmer
+              </button>
+              <button class="btn btn-outline-secondary"
+                      (click)="showDeadlineForm.set(false)">
+                Annuler
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Bandeau tournoi terminé -->
+        @if (tournament()!.statusTournament === 'Terminé') {
+          <div class="alert alert-success text-center mb-4">
+            <h4 class="mb-2">🏆 Tournoi terminé !</h4>
+            @if (winner()) {
+              <p class="mb-0 fs-5">
+                Vainqueur : <strong>{{ winner()!.pseudo }}</strong>
+                avec <strong>{{ winner()!.score }}</strong> point(s)
+              </p>
+            } @else {
+              <p class="mb-0">Aucun gagnant trouvé.</p>
+            }
+          </div>
+        }
+
+        <!-- Boutons d'action -->
+        <div class="d-flex gap-2 mb-4">
+
+          <!-- Démarrer → visible si En attente de joueurs -->
+          @if (tournament()!.statusTournament === 'En attente de joueurs') {
+            <button class="btn btn-success" (click)="startTournament()">
+              ▶️ Démarrer le tournoi
+            </button>
+
+                      <!-- Supprimer → visible uniquement si pas encore commencé -->
+            <button class="btn btn-danger" (click)="deleteTournament()">
+              🗑️ Supprimer le tournoi
+            </button>
+          }
+
+          <!-- Ronde suivante / Terminer tournoi → visible si En cours -->
+          @if (tournament()!.statusTournament === 'En cours') {
+            @if (tournament()!.currentRound < tournament()!.maxRounds) {
+              <button class="btn btn-warning" (click)="nextRound()">
+                ⏭️ Ronde suivante
+              </button>
+            } @else {
+              <button class="btn btn-danger" (click)="nextRound()">
+                🏁 Terminer le tournoi
+              </button>
+            }
+          }
+
+          <!-- Voir le classement → visible si ronde > 0 -->
+          @if (tournament()!.currentRound > 0) {
+            <button class="btn btn-info" (click)="viewScores()">
+              📊 Voir le classement
+            </button>
+          }
+
+        </div>
+
+        <!-- Participants -->
+        <h4 class="mb-3">👥 Participants</h4>
+        @if (tournament()!.players.length > 0) {
+          <table class="table table-striped mb-4">
+            <thead>
+              <tr>
+                <th>Pseudo</th>
+                <th>Club</th>
+                <th>ELO</th>
+                <th>Genre</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (player of tournament()!.players; track player.player_Id) {
+                <tr>
+                  <td>{{ player.pseudo }}</td>
+                  <td>{{ getClubName(player.chessClub_Id) }}</td>
+                  <td>{{ player.elo }}</td>
+                  <td>{{ player.gender }}</td>
+                  <td>
+                    @if (tournament()!.statusTournament === 'Terminé') {
+                      <button class="btn btn-sm btn-outline-info"
+                              (click)="togglePlayerResults(player.player_Id)">
+                        {{ selectedPlayerId() === player.player_Id ? '🔼 Masquer' : '📊 Résultat' }}
+                      </button>
+                    } @else {
+                      <button class="btn btn-sm btn-outline-danger"
+                              (click)="unregisterPlayer(player.player_Id)">
+                        Désinscrire
+                      </button>
+                    }
+                  </td>
+                </tr>
+                @if (selectedPlayerId() === player.player_Id) {
+                  <tr>
+                    <td colspan="5" class="bg-light p-3">
+                      @if (loadingPlayerResults()) {
+                        <div class="spinner-border spinner-border-sm text-info"></div>
+                      } @else if (playerMatches().length === 0) {
+                        <small class="text-muted">Aucun résultat disponible.</small>
+                      } @else {
+                        <table class="table table-sm mb-0">
+                          <thead>
+                            <tr>
+                              <th>Ronde</th>
+                              <th>Adversaire</th>
+                              <th>Résultat</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (match of playerMatches(); track match.match_Id) {
+                              <tr>
+                                <td>{{ match.roundNumber }}</td>
+                                <td>{{ getOpponentPseudo(match, player.player_Id) }}</td>
+                                <td>{{ getPlayerMatchResult(match, player.player_Id) }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      }
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="text-muted">Aucun joueur inscrit</p>
+        }
+
+        <!-- Matchs de la ronde courante → masqué si tournoi terminé -->
+        @if (tournament()!.statusTournament !== 'Terminé') {
+          <h4 class="mb-3">⚔️ Matchs — Ronde {{ tournament()!.currentRound }}</h4>
+          @if (currentRoundMatches().length > 0) {
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Blancs</th>
+                  <th>Noirs</th>
+                  <th>Résultat</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (match of currentRoundMatches(); track match.match_Id) {
+                  <tr>
+                    <td>{{ getPlayerPseudo(match.whitePlayer_Id) }}</td>
+                    <td>{{ getPlayerPseudo(match.blackPlayer_Id) }}</td>
+                    <td>{{ getResultLabel(match) }}</td>
+                    <td>
+                      <button class="btn btn-sm btn-primary"
+                              (click)="updateMatch(match.match_Id)">
+                        Modifier
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <p class="text-muted">Aucun match pour la ronde {{ tournament()!.currentRound }}</p>
+          }
+        }
+
+      </div>
+    </div>
+  }
+</div>

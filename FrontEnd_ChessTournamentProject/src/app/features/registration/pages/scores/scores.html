@@ -1,0 +1,61 @@
+<div class="container mt-4">
+
+  <!-- Bouton retour -->
+  <button class="btn btn-secondary mb-3" (click)="goBack()">
+    ← Retour au tournoi
+  </button>
+
+  <h2 class="mb-4">📊 Tableau des scores — Ronde {{ round() }}</h2>
+
+  <!-- Loader -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  }
+
+  <!-- Erreur -->
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <!-- Tableau des scores -->
+  @if (scores().length > 0) {
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Joueur</th>
+          <th>Matchs joués</th>
+          <th>Victoires</th>
+          <th>Défaites</th>
+          <th>Égalités</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (score of scores(); track score.pseudo; let i = $index) {
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td><strong>{{ score.pseudo }}</strong></td>
+            <td>{{ score.matchesPlayed }}</td>
+            <td class="text-success">{{ score.wins }}</td>
+            <td class="text-danger">{{ score.losses }}</td>
+            <td class="text-warning">{{ score.draws }}</td>
+            <td><strong>{{ score.score }}</strong></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <!-- Aucun score -->
+  @if (!isLoading() && scores().length === 0) {
+    <div class="alert alert-info">
+      Aucun score disponible pour cette ronde !
+    </div>
+  }
+
+</div>

@@ -1,0 +1,46 @@
+<!-- Titre de la page -->
+<div class="container mt-4">
+  <h1 class="mb-3">🏆 Tournois</h1>
+  <div class="d-flex gap-2 mb-4">
+    <a routerLink="/tournaments/create" class="btn btn-primary">Créer un tournoi</a>
+    <a routerLink="/tournaments/history" class="btn btn-outline-secondary">📜 Voir historique des tournois</a>
+  </div>
+
+  <!-- Loader → affiché quand isLoading() = true -->
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  }
+
+  <!-- Erreur → affiché quand error() n'est pas null -->
+  @if (error()) {
+    <div class="alert alert-danger">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Liste des tournois → affiché quand on a des données -->
+  @if (tournaments().length > 0) {
+    <div class="row">
+      @for (tournament of tournaments(); track tournament.tournament_Id) {
+        <div class="col-md-4 mb-3">
+          <app-tournament-card
+            [tournament]="tournament"
+            (tournamentSelected)="onTournamentSelected($event)">
+          </app-tournament-card>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Aucun tournoi -->
+  @if (!isLoading() && tournaments().length === 0) {
+    <div class="alert alert-info">
+      Aucun tournoi disponible !
+    </div>
+  }
+
+</div>

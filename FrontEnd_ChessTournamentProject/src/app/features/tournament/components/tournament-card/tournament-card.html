@@ -1,0 +1,64 @@
+<div class="card h-100 shadow-sm">
+  <div class="card-body">
+
+    <!-- Nom du tournoi -->
+    <h5 class="card-title">{{ tournament().nameTournament }}</h5>
+
+    <!-- Lieu -->
+    <p class="card-text d-flex align-items-center gap-2 mb-1">
+      <span>🗺️</span><span>Lieu : {{ tournament().place }}</span>
+    </p>
+
+    <!-- Statut -->
+    <p class="card-text d-flex align-items-center gap-2 mb-1">
+      <span>🎯</span>
+      <span class="badge"
+        [ngClass]="{
+          'bg-success': tournament().statusTournament === 'En cours',
+          'bg-warning': tournament().statusTournament === 'En attente de joueurs',
+          'bg-secondary': tournament().statusTournament === 'Terminé'
+        }">
+        {{ tournament().statusTournament }}
+      </span>
+    </p>
+
+    <!-- Ronde actuelle -->
+    <p class="card-text d-flex align-items-center gap-2 mb-1">
+      <span>🔄</span><span>Ronde actuelle : {{ tournament().currentRound }}</span>
+    </p>
+
+    <!-- Joueurs inscrits -->
+    <p class="card-text d-flex align-items-center gap-2 mb-1">
+      <span>👥</span><span><strong>{{ tournament().playerCount }}</strong> / {{ tournament().maxNbPlayer }} joueurs inscrits</span>
+    </p>
+
+    <!-- Date limite d'inscription -->
+    <p class="card-text d-flex align-items-center gap-2 mb-0">
+      <span>📅</span><span>Inscriptions jusqu'au <strong>{{ formatDate(tournament().registrationDeadline) }}</strong></span>
+    </p>
+
+  </div>
+
+  <div class="card-footer d-flex gap-2">
+    <!-- Bouton Détail → navigue vers /tournaments/id -->
+    <button class="btn btn-primary flex-fill" (click)="onSelect()">
+      Voir le détail
+    </button>
+    <!-- Bouton S'inscrire ou Supprimer selon le statut -->
+    @if (tournament().statusTournament === 'Terminé') {
+      <button class="btn btn-danger flex-fill" (click)="onDelete()">
+        🗑️ Supprimer
+      </button>
+    } @else if (tournament().playerCount >= tournament().maxNbPlayer) {
+      <button class="btn btn-success flex-fill" disabled>
+        ✅ S'inscrire
+      </button>
+    } @else {
+      <a class="btn btn-success flex-fill"
+         [routerLink]="['/registrations/create']"
+         [queryParams]="{ tournamentId: tournament().tournament_Id }">
+        ✅ S'inscrire
+      </a>
+    }
+  </div>
+</div>

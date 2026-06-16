@@ -1,0 +1,113 @@
+<div class="container mt-4">
+  <h2 class="mb-4">📅 Matchs à venir</h2>
+
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (!isLoading() && tournamentGroups().length === 0) {
+    <div class="alert alert-info">Aucun match à venir — aucun tournoi en cours.</div>
+  }
+
+  @for (group of tournamentGroups(); track group.tournament.tournament_Id) {
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0">🏆 {{ group.tournament.nameTournament }} — Ronde {{ group.tournament.currentRound }}</h5>
+          <small>{{ group.tournament.place }}</small>
+        </div>
+        <button class="btn btn-light btn-sm" (click)="toggleResults(group)" [disabled]="group.loadingResults">
+          @if (group.loadingResults) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          {{ group.showResults ? '🙈 Masquer les résultats' : '📊 Voir les résultats' }}
+        </button>
+      </div>
+
+      <div class="card-body p-0">
+
+        <!-- Matchs à venir -->
+        @if (group.upcomingMatches.length > 0) {
+          <table class="table table-striped mb-0" style="table-layout: fixed; width: 100%">
+            <colgroup>
+              <col style="width: 35%">
+              <col style="width: 35%">
+              <col style="width: 30%">
+            </colgroup>
+            <thead class="table-light">
+              <tr>
+                <th>♟️ Blancs</th>
+                <th>♟ Noirs</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (match of group.upcomingMatches; track match.match_Id) {
+                <tr>
+                  <td>{{ getPlayerPseudo(group.tournament.players, match.whitePlayer_Id) }}</td>
+                  <td>{{ getPlayerPseudo(group.tournament.players, match.blackPlayer_Id) }}</td>
+                  <td><span class="badge bg-warning text-dark">À jouer</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="text-muted p-3 mb-0">Aucun match à venir pour cette ronde.</p>
+        }
+
+        <!-- Résultats des rondes précédentes -->
+        @if (group.showResults) {
+          <div class="p-3 border-top">
+            <h6 class="mb-3">📊 Résultats des rondes jouées</h6>
+            @if (group.resultRounds.length === 0) {
+              <p class="text-muted">Aucun résultat disponible.</p>
+            }
+            @for (round of group.resultRounds; track round.roundNumber) {
+              <h6 class="text-muted mt-2 mb-1">Ronde {{ round.roundNumber }}</h6>
+              <table class="table table-sm table-striped mb-3" style="table-layout: fixed; width: 100%">
+                <colgroup>
+                  <col style="width: 35%">
+                  <col style="width: 35%">
+                  <col style="width: 30%">
+                </colgroup>
+                <thead class="table-light">
+                  <tr>
+                    <th>♟️ Blancs</th>
+                    <th>♟ Noirs</th>
+                    <th>Résultat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (match of round.matches; track match.match_Id) {
+                    <tr>
+                      <td>{{ getPlayerPseudo(group.tournament.players, match.whitePlayer_Id) }}</td>
+                      <td>{{ getPlayerPseudo(group.tournament.players, match.blackPlayer_Id) }}</td>
+                      <td>
+                        @if (match.result === 0) {
+                          <span class="badge bg-secondary">Match nul</span>
+                        } @else if (match.result === 1) {
+                          <span class="badge bg-success">{{ getPlayerPseudo(group.tournament.players, match.whitePlayer_Id) }} gagne</span>
+                        } @else if (match.result === 2) {
+                          <span class="badge bg-success">{{ getPlayerPseudo(group.tournament.players, match.blackPlayer_Id) }} gagne</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+</div>

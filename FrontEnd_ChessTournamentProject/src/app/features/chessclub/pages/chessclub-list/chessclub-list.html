@@ -1,0 +1,191 @@
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>♟️ Liste des clubs</h2>
+    <div class="d-flex gap-2 align-items-center">
+      @if (showDeleteSelect()) {
+        <select class="form-select form-select-sm" style="min-width: 200px"
+                (change)="onDeleteClubSelect($event)">
+          <option value="" selected>Choisir un club...</option>
+          @for (club of clubs(); track club.chessClub_Id) {
+            <option [value]="club.chessClub_Id">{{ club.nameChessClub }}</option>
+          }
+        </select>
+        <button class="btn btn-sm btn-outline-secondary"
+                (click)="showDeleteSelect.set(false)">
+          Annuler
+        </button>
+      } @else {
+        <button class="btn btn-danger"
+                (click)="showDeleteSelect.set(true)">
+          🗑️ Supprimer un club
+        </button>
+      }
+      <button class="btn btn-secondary" (click)="goBack()">← Retour</button>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (isLoading()) {
+    <div class="text-center mt-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2">Chargement...</p>
+    </div>
+  }
+
+  @if (!isLoading() && clubs().length === 0) {
+    <div class="alert alert-info">Aucun club enregistré.</div>
+  }
+
+  @for (club of clubs(); track club.chessClub_Id) {
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white py-1">
+        <h5 class="mb-0">{{ club.nameChessClub }}</h5>
+      </div>
+      <div class="card-body p-0">
+        @if (getPlayersForClub(club.chessClub_Id).length === 0) {
+          <p class="text-muted p-3 mb-0">Aucun joueur dans ce club.</p>
+        } @else {
+          <table class="table table-hover mb-0 align-middle" style="table-layout: fixed; width: 100%">
+            <colgroup>
+              <col style="width: 23%">
+              <col style="width: 6%">
+              <col style="width: 17%">
+              <col style="width: 9%">
+              <col style="width: 8%">
+              <col style="width: 8%">
+              <col style="width: 7%">
+              <col style="width: 22%">
+            </colgroup>
+            <thead class="table-light" style="--bs-table-cell-padding-y: 0.2rem;">
+              <tr>
+                <th>Pseudo</th>
+                <th class="text-center">ELO</th>
+                <th class="text-center">Email</th>
+                <th class="text-center">Genre</th>
+                <th class="text-center">Victoires</th>
+                <th class="text-center">Défaites</th>
+                <th class="text-center">Nuls</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (player of getPlayersForClub(club.chessClub_Id); track player.player_Id) {
+                <tr>
+                  <td>{{ player.pseudo }}</td>
+                  <td class="text-center">{{ player.elo }}</td>
+                  <td class="text-center">{{ player.email }}</td>
+                  <td class="text-center">{{ player.gender }}</td>
+                  <td class="text-center fw-semibold text-success">
+                    {{ getPlayerStats(player.player_Id)?.victories ?? '—' }}
+                  </td>
+                  <td class="text-center fw-semibold text-danger">
+                    {{ getPlayerStats(player.player_Id)?.defeats ?? '—' }}
+                  </td>
+                  <td class="text-center fw-semibold text-secondary">
+                    {{ getPlayerStats(player.player_Id)?.draws ?? '—' }}
+                  </td>
+                  <td>
+                    <div class="d-flex gap-1 justify-content-end">
+                      <button class="btn btn-sm btn-outline-warning"
+                              [routerLink]="['/players', player.player_Id, 'palmares']">
+                        🏆 Palmarès
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger"
+                              (click)="leaveClub(player.player_Id)">
+                        Quitter le club
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!isLoading() && getPlayersWithoutClub().length > 0) {
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">Sans club</h5>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0 align-middle" style="table-layout: fixed; width: 100%">
+          <colgroup>
+            <col style="width: 23%">
+            <col style="width: 6%">
+            <col style="width: 17%">
+            <col style="width: 9%">
+            <col style="width: 8%">
+            <col style="width: 8%">
+            <col style="width: 7%">
+            <col style="width: 22%">
+          </colgroup>
+          <thead class="table-light" style="--bs-table-cell-padding-y: 0.2rem;">
+            <tr>
+              <th>Pseudo</th>
+              <th class="text-center">ELO</th>
+              <th class="text-center">Email</th>
+              <th class="text-center">Genre</th>
+              <th class="text-center">Victoires</th>
+              <th class="text-center">Défaites</th>
+              <th class="text-center">Nuls</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (player of getPlayersWithoutClub(); track player.player_Id) {
+              <tr>
+                <td>{{ player.pseudo }}</td>
+                <td class="text-center">{{ player.elo }}</td>
+                <td class="text-center">{{ player.email }}</td>
+                <td class="text-center">{{ player.gender }}</td>
+                <td class="text-center fw-semibold text-success">
+                  {{ getPlayerStats(player.player_Id)?.victories ?? '—' }}
+                </td>
+                <td class="text-center fw-semibold text-danger">
+                  {{ getPlayerStats(player.player_Id)?.defeats ?? '—' }}
+                </td>
+                <td class="text-center fw-semibold text-secondary">
+                  {{ getPlayerStats(player.player_Id)?.draws ?? '—' }}
+                </td>
+                <td>
+                  <div class="d-flex gap-1 justify-content-end align-items-center w-100">
+                    <button class="btn btn-sm btn-outline-warning"
+                            [routerLink]="['/players', player.player_Id, 'palmares']">
+                      🏆 Palmarès
+                    </button>
+                    @if (activePlayerId() === player.player_Id) {
+                      <select class="form-select form-select-sm"
+                              (change)="assignClub(player.player_Id, $event)">
+                        <option value="" disabled selected>Choisir un club...</option>
+                        @for (c of clubs(); track c.chessClub_Id) {
+                          <option [value]="c.chessClub_Id">{{ c.nameChessClub }}</option>
+                        }
+                      </select>
+                    } @else {
+                      <button class="btn btn-sm btn-outline-primary"
+                              (click)="toggleClubSelect(player.player_Id)">
+                        Rejoindre un club
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+</div>
