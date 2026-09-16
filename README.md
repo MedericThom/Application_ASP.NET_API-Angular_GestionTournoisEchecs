@@ -14,7 +14,7 @@ ApplicationTournoiEchec/
 
 ---
 
-## Backend — ASP.NET Core 10
+## Backend - ASP.NET Core 10
 
 ### Architecture
 
@@ -91,7 +91,7 @@ Swagger disponible sur : `http://localhost:5083/swagger`
 
 ---
 
-## Frontend — Angular 21
+## Frontend - Angular 21
 
 ### Technologies
 
